@@ -1,19 +1,26 @@
 -module(server).
--export([calculate/0]).
+-export([server/0]).
 
-calculate() -> 
+server() -> 
 	receive
-		{From, sum, Pol1, Pol2} -> 
+		{From, sum, {Pol1, Pol2} } -> 
 			From ! {error, not_implemented},
-			calculate();
-		{From, subtract, Pol1, Pol2} -> 
+			server();
+		{From, subtract, {Pol1, Pol2} } -> 
 			From ! {error, not_implemented},
-			calculate();
-		{From, multiply, Pol1, Pol2} -> 
+			server();
+		{From, multiply, {Pol1, Pol2} } -> 
 			From ! {error, not_implemented},
-			calculate();
+			server();
 		{From, _, _, _} -> 
-			From ! {error, not_implemented},
-			calculate()
+			From ! {error, bad_request},
+			server();
+		{From, _, _} -> 
+			From ! {error, bad_request},
+			server();
+		_ -> 
+			server() % idk, ignore i guess
 	end.
+
+
 
