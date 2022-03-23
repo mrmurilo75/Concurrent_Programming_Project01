@@ -10,7 +10,7 @@ O trabalho consiste em:
 O trabalho é realizado em grupos de dois alunos.
 
 ## Envio
- - Enviado por **email para _amflorid@fc.up.pt_**
+ - Enviado por **email para _amflorid (at) fc.up.pt_**
  - Com o **Subject: Programação Concorrente - Trabalho Prático**
  - Até ao final do dia **3 de Abril**
  - **Apresentado na aula prática** da semana **seguinte** (4 a 8 de Abril)
