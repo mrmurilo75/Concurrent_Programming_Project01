@@ -13,7 +13,7 @@ sum() ->
 server() -> 
 	receive
 		{From, sum, {Pol1, Pol2} } -> 
-			spawn(server, sum, []) ! {self(), From, Pol1, Pol2},
+			spawn(?MODULE, sum, []) ! {self(), From, Pol1, Pol2},
 			server();
 		{From, subtract, {Pol1, Pol2} } -> 
 			From ! {error, not_implemented},
