@@ -14,7 +14,7 @@
 %% erl
 %% c(server).
 %% Pid = server:start().
-%% server:send_request(Pid, { sum, { [{ 2, 3 }], [{ 1, 3 }] } }).
+%% server:send_request(Pid, { sum, { [{ 2, [{ x, 2 }] }], [{ 1, [{ x, 2 }] }] } }).
 
 start() -> spawn(?MODULE, server, []).
 
@@ -46,30 +46,48 @@ find_and_remove(Elem, [Head | List], IsEqual) ->
 find_and_remove(_, [], _) ->
     { false, [] }.
 
-%% Check if the factors are the same, for example, x^2 * y =:= y * x^2
-%% Missing implementation...
-lists_are_equal(_, _) -> true.
+is_subset([Elem | Left], Right) ->
+    lists:member(Elem, Right) and is_subset(Left, Right);
+
+is_subset([], _) -> true.
+
+have_same_factors(Left, Right) ->
+    is_subset(Left, Right) and is_subset(Right, Left).
 
 %% Don't forget to account for repeated factors
 %% (x^2 * x^2, for example), should be done when multiplying,
 %% probably.
-reduce_poly([Head = { Coef1, Factors } | Poly]) ->
+combine_terms([Head = { Coef1, Factors } | Poly]) ->
     case find_and_remove(
-           Head, Poly, fun (X, Y) -> lists_are_equal(X, Y) end
-          ) of
+           Head,
+           Poly,
+           fun ({ _, X }, { _, Y }) -> have_same_factors(X, Y) end) of
         { false, _ } ->
-            [Head | reduce_poly(Poly)];
+            [Head | combine_terms(Poly)];
         { { Coef2, _ }, Rest } ->
-            reduce_poly([{ Coef1 + Coef2, Factors } | Rest])
+            combine_terms([{ Coef1 + Coef2, Factors } | Rest])
     end;
 
-reduce_poly(_) -> [].
+combine_terms(_) -> [].
+
+combine_factors([Head = { Var, ThisPower } | Factors]) ->
+    case find_and_remove(
+           Head,
+           Factors,
+           fun ({ Left, _ }, { Right, _ }) -> Left =:= Right end) of
+        { false, _ } ->
+            [Head | combine_factors(Factors)];
+        { { _, OtherPower }, Rest } ->
+            combine_factors([{ Var, ThisPower + OtherPower } | Rest])
+    end;
+
+combine_factors([]) -> [].
 
 sum(Left, Right) ->
-    reduce_poly(lists:append(Left, Right)).
+    combine_terms(lists:append(Left, Right)).
 
 diff(Left, Right) ->
-    reduce_poly(
+    combine_terms(
       lists:append(
         Left,
         lists:map(fun ({ Coef, Something }) ->
