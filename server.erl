@@ -24,8 +24,8 @@ server() ->
             From ! { success, sum(Poly1, Poly2) };
         { From, { subtract, { Poly1, Poly2 } } } ->
             From ! { success, diff(Poly1, Poly2) };
-        { From, { multiply, { Pol1, Pol2 } } } ->
-            From ! { error, not_implemented };
+        { From, { multiply, { Poly1, Poly2 } } } ->
+            From ! { error, mul(Poly1, Poly2) };
         { From, _ } ->
             From ! { error, bad_request };
         _ -> ok %% idk, ignore I guess
@@ -93,3 +93,6 @@ diff(Left, Right) ->
         lists:map(fun ({ Coef, Something }) ->
                           { -Coef, Something } end, Right)
        )).
+
+mul(_, _) ->
+    unimplemented.
