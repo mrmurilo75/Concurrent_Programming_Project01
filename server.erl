@@ -60,7 +60,7 @@ reduce_poly([Head = { Coef1, Factors } | Poly]) ->
         { false, _ } ->
             [Head | reduce_poly(Poly)];
         { { Coef2, _ }, Rest } ->
-            [{ Coef1 + Coef2, Factors } | reduce_poly(Rest)]
+            reduce_poly([{ Coef1 + Coef2, Factors } | Rest])
     end;
 
 reduce_poly(_) -> [].
