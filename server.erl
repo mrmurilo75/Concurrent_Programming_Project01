@@ -18,6 +18,8 @@
 
 start() -> spawn(?MODULE, server, []).
 
+%% Should reduce factors before passing polynomials to sum and diff,
+%% 'cause otherwise some factors may not be reduced.
 server() ->
     receive
         { From, { sum, { Poly1, Poly2 } } } ->
@@ -54,9 +56,6 @@ is_subset([], _) -> true.
 have_same_factors(Left, Right) ->
     is_subset(Left, Right) and is_subset(Right, Left).
 
-%% Don't forget to account for repeated factors
-%% (x^2 * x^2, for example), should be done when multiplying,
-%% probably.
 combine_terms([Head = { Coef1, Factors } | Poly]) ->
     case find_and_remove(
            Head,
@@ -83,6 +82,15 @@ combine_factors([Head = { Var, ThisPower } | Factors]) ->
 
 combine_factors([]) -> [].
 
+distribute([{ Coef1, Factors1 } | Left], Right) ->
+    lists:map(
+      fun ({ Coef2, Factors2 }) ->
+              { Coef1 * Coef2, combine_factors(
+                                 lists:append(Factors1, Factors2)
+                                ) } end, Right) ++ mul(Left, Right);
+
+distribute([], _) -> [].
+
 sum(Left, Right) ->
     combine_terms(lists:append(Left, Right)).
 
@@ -94,5 +102,5 @@ diff(Left, Right) ->
                           { -Coef, Something } end, Right)
        )).
 
-mul(_, _) ->
-    unimplemented.
+mul(Left, Right) ->
+    combine_terms(distribute(Left, Right)).
