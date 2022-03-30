@@ -123,8 +123,7 @@ distribute([{ Coef1, Factors1 } | Left], Right) ->
       fun ({ Coef2, Factors2 }) ->
               { Coef1 * Coef2, combine_factors(
                                  lists:append(Factors1, Factors2)
-                                ) } end, Right) ++ mul(Left, Right); % I think this still needs reducing after ( we need could have x^2 twice in factor, for example, and have the same factor with coefs twice too, ex x^2 * x^3 * y^2 * y^3 + .. + x^1 * x^4 * y^1 * y^4 ) 
-									% TODO solve this just sort and reduce
+                                ) } end, Right) ++ distribute(Left, Right);
 
 distribute([], _) -> [].
 
