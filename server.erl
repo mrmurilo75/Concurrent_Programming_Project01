@@ -83,9 +83,8 @@ combine_terms(_) -> [].
 find_and_remove(Elem, [Head | List], IsEqual) ->
     case IsEqual(Elem, Head) of
         true -> { Head, List };
-        _ -> case find_and_remove(Elem, List, IsEqual) of % cant we just : -> find_and_remove() end 
-                 { Something, Rest } -> { Something, [Head | Rest] }
-             end
+        _ -> { Something, Rest } = find_and_remove(Elem, List, IsEqual),
+             { Something, [Head | Rest] }
     end;
 
 find_and_remove(_, [], _) ->
@@ -118,6 +117,8 @@ combine_factors([Head = { Var, ThisPower } | Factors]) ->
 
 combine_factors([]) -> [].
 
+
+
 distribute([{ Coef1, Factors1 } | Left], Right) ->
     lists:map(
       fun ({ Coef2, Factors2 }) ->
@@ -126,5 +127,3 @@ distribute([{ Coef1, Factors1 } | Left], Right) ->
                                 ) } end, Right) ++ distribute(Left, Right);
 
 distribute([], _) -> [].
-
-
