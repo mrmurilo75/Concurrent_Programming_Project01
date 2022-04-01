@@ -1,2 +1,4 @@
 *.beam
-
+*.out
+parser/*.hi
+parser/*.o
