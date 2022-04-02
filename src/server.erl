@@ -32,11 +32,15 @@ start() ->
 	{ok, Listen} = gen_tcp:listen(2345, [binary, {packet, 4},
 						{reuseaddr, true},
 						{active, true}]),
-	{ok, Socket} = gen_tcp:accept(Listen),
-	gen_tcp:close(Listen),
-	loop(Socket).
+	Pid = spawn(?MODULE, calculate, []),
+	sequential(Listen, Pid).
 
-loop(Socket) ->
+sequential(Listen, Pid) ->
+	{ok, Socket} = gen_tcp:accept(Listen),
+	loop(Socket, Pid),
+	sequential(Listen, Pid).
+
+loop(Socket, Pid) ->
 	receive
 		{tcp, Socket, Bin} ->
 			%% io:format("Server received binary = ~p~n" ,[Bin]),
@@ -44,13 +48,12 @@ loop(Socket) ->
 			Str = binary_to_term(Bin),
 			%% io:format("Server (unpacked) ~p~n" ,[Str]),
 
-			Pid = spawn(?MODULE, calculate, []),
 			Reply = send_request(Pid, Str),
 
 			%% io:format("Server replying = ~p~n" ,[Reply]),
 			gen_tcp:send(Socket, term_to_binary(Reply)),
-			loop(Socket);
+			loop(Socket, Pid);
 		{tcp_closed, Socket} ->
-			io:format("Server socket closed~n" )
+			io:format("Request finnished~n" )
 	end.
 
