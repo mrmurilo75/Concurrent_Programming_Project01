@@ -33,18 +33,23 @@ multiply(Left, Right) ->
 
 % add coef of terms with equal Factors ( ex.: [{x,2}, {y,3}] )
 combine_terms([Head = { Coef1, Factors } | Poly]) ->
-    case find_and_remove(
-           Head,
-           Poly,
-           fun ({ _, X }, { _, Y }) -> have_same_factors(X, Y) end)
-    of
-        { false, _ } ->
-            [Head | combine_terms(Poly)];
-        { { Coef2, _ }, Rest } ->
-            combine_terms([{ Coef1 + Coef2, Factors } | Rest])
+    if
+        Coef1 =:= 0 -> combine_terms(Poly);
+        true ->
+            case find_and_remove(
+                   Head,
+                   Poly,
+                   fun ({ _, X }, { _, Y }) -> have_same_factors(X, Y) end)
+            of
+                { false, _ } ->
+                    [Head | combine_terms(Poly)];
+                { { Coef2, _ }, Rest } ->
+                    combine_terms([{ Coef1 + Coef2, Factors } | Rest])
+            end
     end;
 
 combine_terms(_) -> [].
+
 
 
 find_and_remove(Elem, [Head | List], IsEqual) ->
