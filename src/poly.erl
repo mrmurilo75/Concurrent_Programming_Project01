@@ -1,5 +1,5 @@
 -module(poly).
--export([add/2, subtract/2, multiply/2, print/1]).
+-export([add/2, subtract/2, multiply/2, normalize/1, print/1]).
 
 % put it in a single polynomial and reduce (add terms with equal factors)
 add(Left, Right) ->
@@ -16,6 +16,13 @@ subtract(Left, Right) ->
 
 multiply(Left, Right) ->
     combine_terms(distribute(Left, Right)).
+
+normalize(Poly) ->
+    combine_terms(
+      lists:map(
+        fun ({ Coef, Factors }) -> { Coef, combine_factors(Factors) } end, Poly
+       )
+     ).
 
 % TODO (we can implement this to accept unordered input and do faster sum)
 % implementing sort for factor list (comparing then will be trivial)
