@@ -1,5 +1,5 @@
 -module(server).
--export([start/0]).
+-export([start/0, calculate/0]).
 
 %% Example of how to execute:
 %% erl
