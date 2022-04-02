@@ -19,12 +19,17 @@ start() -> spawn(?MODULE, server, []).
 %% 'cause otherwise some factors may not be reduced.
 server() ->
     receive
-        { From, { sum, { Poly1, Poly2 } } } ->
-            From ! { success, poly:add(Poly1, Poly2) };
-        { From, { subtract, { Poly1, Poly2 } } } ->
-            From ! { success, poly:subtract(Poly1, Poly2) };
-        { From, { multiply, { Poly1, Poly2 } } } ->
-            From ! { success, poly:multiply(Poly1, Poly2) };
+        { From, { Operation, { Poly1, Poly2 } } } ->
+            NormPoly1 = poly:normalize(Poly1),
+            NormPoly2 = poly:normalize(Poly2),
+            From ! (
+              case Operation of
+                  sum -> { success, poly:add(NormPoly1, NormPoly2) };
+                  subtract -> { success, poly:subtract(NormPoly1, NormPoly2) };
+                  multiply -> { success, poly:multiply(NormPoly1, NormPoly2) };
+                  _ -> { error, invalid_operation }
+              end
+             );
         { From, _ } ->
             From ! { error, bad_request };
         _ -> ok %% idk, ignore I guess
