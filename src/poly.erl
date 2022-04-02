@@ -1,5 +1,5 @@
 -module(poly).
--export([add/2, subtract/2, multiply/2]).
+-export([add/2, subtract/2, multiply/2, print/1]).
 
 % put it in a single polynomial and reduce (add terms with equal factors)
 add(Left, Right) ->
@@ -94,3 +94,30 @@ distribute([{ Coef1, Factors1 } | Left], Right) ->
                                 ) } end, Right) ++ distribute(Left, Right);
 
 distribute([], _) -> [].
+
+
+
+print([Term = { Coef, Factors } | Poly]) ->
+    case Term of
+        { 1, [] } -> io:fwrite("1");
+        { _, [] } -> io:fwrite("~w", [Coef]);
+        { 1, _ } -> print_factors(Factors);
+        { _, _ } -> io:fwrite("~w ", [Coef]), print_factors(Factors)
+    end,
+    io:fwrite(case Poly of [] -> "~n"; _ -> " + " end),
+    print(Poly);
+
+print([]) -> ok.
+
+print_factors([{ Var, Power } | Factors]) ->
+    if
+        Power =:= 1 -> io:fwrite("~w", [Var]);
+        true -> io:fwrite("~w^~w", [Var, Power])
+    end,
+    case Factors of
+        [] -> ok;
+        _ -> io:fwrite(" ")
+    end,
+    print_factors(Factors);
+
+print_factors([]) -> ok.
