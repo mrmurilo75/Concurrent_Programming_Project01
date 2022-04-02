@@ -40,12 +40,13 @@ loop(Socket) ->
 	receive
 		{tcp, Socket, Bin} ->
 			%% io:format("Server received binary = ~p~n" ,[Bin]),
+
 			Str = binary_to_term(Bin),
-			{sum, Req} = Str,
-			io:format("Server (unpacked) ~p~n" ,[is_tuple(Req)]),
+			%% io:format("Server (unpacked) ~p~n" ,[Str]),
+
 			Pid = spawn(?MODULE, calculate, []),
-			io:format("Pid = ~p~n" ,[Pid]),
 			Reply = send_request(Pid, Str),
+
 			%% io:format("Server replying = ~p~n" ,[Reply]),
 			gen_tcp:send(Socket, term_to_binary(Reply)),
 			loop(Socket);

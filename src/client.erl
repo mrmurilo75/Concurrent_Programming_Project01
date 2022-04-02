@@ -23,8 +23,10 @@ send_request(Host, Req) ->
 	receive
 		{tcp,Socket,Bin} ->
 			%% io:format("Client received binary = ~p~n" ,[Bin]),
-			Val = binary_to_term(Bin),
-			io:format("Client result = ~p~n" ,[Val]),
-			gen_tcp:close(Socket)
+			%% Val = binary_to_term(Bin),
+			%% io:format("Client result = ~p~n" ,[Val]),
+
+			gen_tcp:close(Socket),
+			binary_to_term(Bin)
 	end.
 
