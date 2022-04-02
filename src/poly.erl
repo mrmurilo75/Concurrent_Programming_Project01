@@ -84,14 +84,18 @@ have_same_factors(Left, Right) ->
 
 
 combine_factors([Head = { Var, ThisPower } | Factors]) ->
-    case find_and_remove(
-           Head,
-           Factors,
-           fun ({ Left, _ }, { Right, _ }) -> Left =:= Right end) of
-        { false, _ } ->
-            [Head | combine_factors(Factors)];
-        { { _, OtherPower }, Rest } ->
-            combine_factors([{ Var, ThisPower + OtherPower } | Rest])
+    if
+        ThisPower =:= 0 -> combine_factors(Factors);
+        true ->
+            case find_and_remove(
+                   Head,
+                   Factors,
+                   fun ({ Left, _ }, { Right, _ }) -> Left =:= Right end) of
+                { false, _ } ->
+                    [Head | combine_factors(Factors)];
+                { { _, OtherPower }, Rest } ->
+                    combine_factors([{ Var, ThisPower + OtherPower } | Rest])
+            end
     end;
 
 combine_factors([]) -> [].
