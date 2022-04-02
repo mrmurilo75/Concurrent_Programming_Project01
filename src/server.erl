@@ -43,17 +43,11 @@ sequential(Listen, Pid) ->
 loop(Socket, Pid) ->
 	receive
 		{tcp, Socket, Bin} ->
-			%% io:format("Server received binary = ~p~n" ,[Bin]),
-
 			Str = binary_to_term(Bin),
-			%% io:format("Server (unpacked) ~p~n" ,[Str]),
-
 			Reply = send_request(Pid, Str),
-
-			%% io:format("Server replying = ~p~n" ,[Reply]),
 			gen_tcp:send(Socket, term_to_binary(Reply)),
 			loop(Socket, Pid);
 		{tcp_closed, Socket} ->
-			io:format("Request finnished~n" )
+			ok
 	end.
 
