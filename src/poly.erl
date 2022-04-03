@@ -1,5 +1,5 @@
 -module(poly).
--export([add/2, subtract/2, multiply/2, normalize/1, print/1]).
+-export([add/2, subtract/2, multiply/2, normalize/1, to_string/1]).
 
 % put it in a single polynomial and reduce (add terms with equal factors)
 add(Left, Right) ->
@@ -113,27 +113,24 @@ distribute([], _) -> [].
 
 
 
-print([Term = { Coef, Factors } | Poly]) ->
+to_string([Term = { Coef, Factors } | Poly]) ->
     case Term of
-        { 1, [] } -> io:fwrite("1");
-        { _, [] } -> io:fwrite("~w", [Coef]);
-        { 1, _ } -> print_factors(Factors);
-        { _, _ } -> io:fwrite("~w ", [Coef]), print_factors(Factors)
-    end,
-    io:fwrite(case Poly of [] -> "~n"; _ -> " + " end),
-    print(Poly);
+        { 1, [] } -> "1";
+        { _, [] } -> integer_to_list(Coef);
+        { 1, _ } -> factors_as_string(Factors);
+        { _, _ } -> integer_to_list(Coef) ++ factors_as_string(Factors)
+    end ++ (case Poly of [] -> ""; _ -> " + " end) ++
+        to_string(Poly);
 
-print([]) -> ok.
+to_string([]) -> "".
 
-print_factors([{ Var, Power } | Factors]) ->
+factors_as_string([{ Var, Power } | Factors]) ->
     if
-        Power =:= 1 -> io:fwrite("~w", [Var]);
-        true -> io:fwrite("~w^~w", [Var, Power])
-    end,
-    case Factors of
-        [] -> ok;
-        _ -> io:fwrite(" ")
-    end,
-    print_factors(Factors);
+        Power =:= 1 -> lists:flatten(io_lib:format("~p", [Var]));
+        true -> lists:flatten(io_lib:format("~p^~p", [Var, Power]))
+    end ++ case Factors of
+               [] -> "";
+               _ -> " "
+           end ++ factors_as_string(Factors);
 
-print_factors([]) -> ok.
+factors_as_string([]) -> "".
