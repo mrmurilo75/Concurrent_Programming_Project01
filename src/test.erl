@@ -2,125 +2,32 @@
 -export([test/0]).
 
 test() ->
-    test_func_against_samples(
-      sums(), fun (X, Y) -> poly:add(X, Y) end
-     ) and
-        test_func_against_samples(
-          differences(), fun (X, Y) -> poly:subtract(X, Y) end
-         ) and
-        test_func_against_samples(
-          products(), fun (X, Y) -> poly:multiply(X, Y) end
-         ).
+    Left = [{ 5, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 3, [{ y, 1 }] }],
+    Right = [{ 3, [{ x, 2 }] },
+             { 3, [{ y, 1 }] },
+             { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
 
-%% "8"
-%% "x"
-%% "7 x^2 + x + 1"
-%% "5 x y^2 z + 3 y"
-%% "3 x^2 + 2 y + z x y^2"
-polynomials() ->
-    [[{ 8, [] }],
-     [{ 1, [{ x, 1 }] }],
-     [{ 7, [{ x, 2 }] }, { 1, [{ x, 1 }] }, { 1, [] }],
-     [{ 5, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 3, [{ y, 1 }] }],
-     [{ 3, [{ x, 2 }] },
-      { 2, [{ y, 1 }] },
-      { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }]].
+    io:fwrite("Starting server...~n"),
 
-sums() ->
-    [[{ 16, [] }],
-     [{ 8, [] }, { 1, [{ x, 1 }] }],
-     [{ 9, [] }, { 7, [{ x, 2 }] }, { 1, [{ x, 1 }] }],
-     [{ 8, [] }, { 5, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 3, [{ y, 1 }] }],
-     [{ 8, [] }, { 3, [{ x, 2 }] }, { 2, [{ y, 1 }] },
-      { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [{ 2, [{ x, 1 }] }],
-     [{ 2, [{ x, 1 }] }, { 7, [{ x, 2 }] }, { 1, [] }],
-     [{ 1, [{ x, 1 }] }, { 5, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 3, [{ y, 1 }] }],
-     [{ 1, [{ x, 1 }] }, { 3, [{ x, 2 }] }, { 2, [{ y, 1 }] },
-      { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [{ 14, [{ x, 2 }] }, { 2, [{ x, 1 }] }, { 2, [] }],
-     [{ 7, [{ x, 2 }] }, { 1, [{ x, 1 }] }, { 1, [] },
-      { 5, [{ x, 1 }, { y, 2 }, { z, 1 }] },
-      { 3, [{ y, 1 }] }],
-     [{ 10, [{ x, 2 }] }, { 1, [{ x, 1 }] }, { 1, [] }, { 2, [{ y, 1 }] },
-      { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [{ 10, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 6, [{ y, 1 }] }],
-     [{ 6, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 5, [{ y, 1 }] }, { 3, [{ x, 2 }] }],
-     [{ 6, [{ x, 2 }] }, { 4, [{ y, 1 }] }, { 2, [{ z, 1 }, { x, 1 }, { y, 2 }] }]].
+    Pid = spawn(server, start, []),
 
-differences() ->
-    [[],
-     [{ 8, [] }, { -1, [{ x, 1 }] }],
-     [{ 7, [] }, { -7, [{ x, 2 }] }, { -1, [{ x, 1 }] }],
-     [{ 8, [] }, { -5, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { -3, [{ y, 1 }] }],
-     [{ 8, [] }, { -3, [{ x, 2 }] }, { -2, [{ y, 1 }] },
-      { -1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [],
-     [{ -7, [{ x, 2 }] }, { -1, [] }],
-     [{ 1, [{ x, 1 }] }, { -5, [{ x, 1 }, { y, 2 }, { z, 1 }] },
-      { -3, [{ y, 1 }] }],
-     [{ 1, [{ x, 1 }] }, { -3, [{ x, 2 }] }, { -2, [{ y, 1 }] },
-      { -1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [],
-     [{ 7, [{ x, 2 }] }, { 1, [{ x, 1 }] }, { 1, [] },
-      { -5, [{ x, 1 }, { y, 2 }, { z, 1 }] },
-      { -3, [{ y, 1 }] }],
-     [{ 4, [{ x, 2 }] }, { 1, [{ x, 1 }] }, { 1, [] }, { -2, [{ y, 1 }] },
-      { -1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [],
-     [{ 4, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 1, [{ y, 1 }] },
-      { -3, [{ x, 2 }] }],
-     []].
+    io:fwrite(
+      "Server started.~nUsing polynomials:~n  ~s~n  ~s~nRequesting sumation, subtraction and multipliation...~n",
+      [poly:to_string(Left), poly:to_string(Right)]
+     ),
 
-products() ->
-    [[{ 64, [] }],
-     [{ 8, [{ x, 1 }] }],
-     [{ 56, [{ x, 2 }] }, { 8, [{ x, 1 }] }, { 8, [] }],
-     [{ 40, [{ x, 1 }, { y, 2 }, { z, 1 }] }, { 24, [{ y, 1 }] }],
-     [{ 24, [{ x, 2 }] }, { 16, [{ y, 1 }] },
-      { 8, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [{ 1, [{ x, 2 }] }],
-     [{ 7, [{ x, 3 }] }, { 1, [{ x, 2 }] }, { 1, [{ x, 1 }] }],
-     [{ 5, [{ x, 2 }, { y, 2 }, { z, 1 }] }, { 3, [{ x, 1 }, { y, 1 }] }],
-     [{ 3, [{ x, 3 }] }, { 2, [{ x, 1 }, { y, 1 }] },
-      { 1, [{ x, 2 }, { z, 1 }, { y, 2 }] }],
-     [{ 49, [{ x, 4 }] }, { 14, [{ x, 3 }] }, { 15, [{ x, 2 }] },
-      { 2, [{ x, 1 }] },
-      { 1, [] }],
-     [{ 35, [{ x, 3 }, { y, 2 }, { z, 1 }] }, { 21, [{ x, 2 }, { y, 1 }] },
-      { 5, [{ x, 2 }, { y, 2 }, { z, 1 }] },
-      { 3, [{ x, 1 }, { y, 1 }] },
-      { 5, [{ x, 1 }, { y, 2 }, { z, 1 }] },
-      { 3, [{ y, 1 }] }],
-     [{ 21, [{ x, 4 }] }, { 14, [{ x, 2 }, { y, 1 }] },
-      { 7, [{ x, 3 }, { z, 1 }, { y, 2 }] },
-      { 3, [{ x, 3 }] },
-      { 2, [{ x, 1 }, { y, 1 }] },
-      { 1, [{ x, 2 }, { z, 1 }, { y, 2 }] },
-      { 3, [{ x, 2 }] },
-      { 2, [{ y, 1 }] },
-      { 1, [{ z, 1 }, { x, 1 }, { y, 2 }] }],
-     [{ 25, [{ x, 2 }, { y, 4 }, { z, 2 }] },
-      { 30, [{ x, 1 }, { y, 3 }, { z, 1 }] },
-      { 9, [{ y, 2 }] }],
-     [{ 15, [{ x, 3 }, { y, 2 }, { z, 1 }] },
-      { 13, [{ x, 1 }, { y, 3 }, { z, 1 }] },
-      { 5, [{ x, 2 }, { y, 4 }, { z, 2 }] },
-      { 9, [{ y, 1 }, { x, 2 }] },
-      { 6, [{ y, 2 }] }],
-     [{ 9, [{ x, 4 }] }, { 12, [{ x, 2 }, { y, 1 }] },
-      { 6, [{ x, 3 }, { z, 1 }, { y, 2 }] },
-      { 4, [{ y, 2 }] },
-      { 4, [{ y, 3 }, { z, 1 }, { x, 1 }] },
-      { 1, [{ z, 2 }, { x, 2 }, { y, 4 }] }]].
+    SumResult = client:request_sum(Left, Right),
+    SubtractionResult = client:request_subtract(Left, Right),
+    ProductResult = client:request_multiply(Left, Right),
 
-test_func_against_samples(Samples, FunctionToTest) ->
-    Samples =:= apply_to_every_unique_pair(
-                  polynomials(), fun (A, B) -> FunctionToTest(A, B) end
-                 ).
+    io:fwrite(
+      "Got answers:~n  Sum: ~s~n  Difference: ~s~n  Product: ~s~nClosing server...~n",
+      [pretiffy(SumResult), pretiffy(SubtractionResult), pretiffy(ProductResult)]
+     ),
 
-apply_to_every_unique_pair(List = [Elem | Rest], Action) ->
-    lists:map(fun (X) -> Action(Elem, X) end, List) ++
-        apply_to_every_unique_pair(Rest, Action);
+    exit(Pid, ok),
 
-apply_to_every_unique_pair([], _) -> [].
+    io:fwrite("Server successfully closed.~n").
+
+pretiffy({ _, Poly }) ->
+    poly:to_string(Poly).
